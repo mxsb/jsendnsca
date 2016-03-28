@@ -16,6 +16,7 @@ package com.googlecode.jsendnsca;
 import com.googlecode.jsendnsca.builders.MessagePayloadBuilder;
 import com.googlecode.jsendnsca.builders.NagiosSettingsBuilder;
 import com.googlecode.jsendnsca.mocks.NagiosNscaStub;
+import com.googlecode.jsendnsca.mocks.XorDecryptor;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class NagiosPassiveCheckSenderTest {
     public ExpectedException expectedException = ExpectedException.none();
 
     @Rule
-    public NagiosNscaStub stub = NagiosNscaStub.listeningOnAnyFreePort(PASSWORD);
+    public NagiosNscaStub stub = NagiosNscaStub.listeningOnAnyFreePort(PASSWORD, new XorDecryptor());
 
     @Test
     public void shouldThrowIllegalArgExceptionOnConstructingSenderWithNullNagiosSettings() {

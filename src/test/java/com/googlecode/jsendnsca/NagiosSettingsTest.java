@@ -13,16 +13,17 @@
  */
 package com.googlecode.jsendnsca;
 
-import com.googlecode.jsendnsca.encryption.Encryption;
 import com.googlecode.jsendnsca.encryption.Encryptor;
-import com.googlecode.jsendnsca.encryption.TripleDESEncryptor;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static com.googlecode.jsendnsca.encryption.Encryption.TRIPLE_DES;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 public class NagiosSettingsTest {
 
@@ -56,9 +57,11 @@ public class NagiosSettingsTest {
 
     @Test
     public void shouldSetEncryptionUsingEnum() throws Exception {
-        nagiosSettings.setEncryption(Encryption.TRIPLE_DES);
+        final Encryptor defaultEncryptor = nagiosSettings.getEncryptor();
 
-        assertEquals(Encryption.TRIPLE_DES.getEncryptor(), nagiosSettings.getEncryptor());
+        nagiosSettings.setEncryption(TRIPLE_DES);
+
+        assertThat(nagiosSettings.getEncryptor(), is(not(equalTo(defaultEncryptor))));
     }
 
     @Test
@@ -84,14 +87,23 @@ public class NagiosSettingsTest {
     @Test
     public void shouldReturnStringOfNagiosSettings() throws Exception {
         String settings = new NagiosSettings().toString();
-        assertEquals("NagiosSettings[nagiosHost=localhost,port=5667,password=,timeout=10000,connectTimeout=5000,encryptor=none]", settings);
+        assertEquals("NagiosSettings[nagiosHost=localhost,port=5667,password=,timeout=10000,connectTimeout=5000,encryptor=NullEncryptor]", settings);
     }
 
     @Test
     public void shouldSetEncryptionUsingEncryptor() throws Exception {
-        Encryptor expectedEncryptor = new TripleDESEncryptor();
+        Encryptor expectedEncryptor = new TestEncryptor();
         nagiosSettings.setEncryptor(expectedEncryptor);
 
         assertEquals(expectedEncryptor, nagiosSettings.getEncryptor());
     }
+
+    private class TestEncryptor implements Encryptor {
+
+        @Override
+        public void encrypt(final byte[] passiveCheckBytes, final byte[] initVector, final String password) {
+
+        }
+    }
+
 }

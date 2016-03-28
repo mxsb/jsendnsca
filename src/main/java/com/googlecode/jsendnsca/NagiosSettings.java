@@ -13,18 +13,17 @@
  */
 package com.googlecode.jsendnsca;
 
-import static com.googlecode.jsendnsca.encryption.Encryption.NONE;
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE;
-
+import com.googlecode.jsendnsca.encryption.Encryption;
+import com.googlecode.jsendnsca.encryption.Encryptor;
 import org.apache.commons.lang.Validate;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.math.IntRange;
 
-import com.googlecode.jsendnsca.encryption.Encryption;
-import com.googlecode.jsendnsca.encryption.Encryptor;
+import static com.googlecode.jsendnsca.encryption.Encryption.NONE;
+import static com.googlecode.jsendnsca.encryption.EncryptorFactory.createEncryptor;
+import static org.apache.commons.lang.builder.ToStringStyle.SHORT_PREFIX_STYLE;
 
 /**
  * The settings to use for sending the Passive Check
@@ -46,7 +45,7 @@ public class NagiosSettings {
     private int port = 5667;
     private int timeout = 10000;
     private int connectTimeout = 5000;
-    private Encryptor encryptor = NONE.getEncryptor();
+    private Encryptor encryptor = createEncryptor(NONE);
     private int maxMessageSizeInChars = SMALL_MAX_MESSAGE_SIZE_IN_CHARS;
 
     /**
@@ -120,7 +119,7 @@ public class NagiosSettings {
      *             encryption algorithm
      */
     public void setEncryption(Encryption encryption) {
-        setEncryptor(encryption.getEncryptor());
+        setEncryptor(createEncryptor(encryption));
     }
 
     /**
@@ -239,7 +238,7 @@ public class NagiosSettings {
             .append("password", password)
             .append("timeout", timeout)
             .append("connectTimeout", connectTimeout)
-            .append("encryptor", defaultIfEmpty(encryptor.getClass().getSimpleName(), "none"))
+            .append("encryptor", encryptor.getClass().getSimpleName())
             .toString();
     }
 

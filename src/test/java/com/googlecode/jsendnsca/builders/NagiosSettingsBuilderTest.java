@@ -24,10 +24,15 @@ public class NagiosSettingsBuilderTest {
 
     @Test
     public void shouldCreateDefault() throws Exception {
-        NagiosSettings defaultNagiosSettings = new NagiosSettings();
+        final NagiosSettings nagiosSettings = new NagiosSettingsBuilder().createDefault();
 
-        NagiosSettings nagiosSettings = new NagiosSettingsBuilder().createDefault();
-        assertEquals(defaultNagiosSettings, nagiosSettings);
+        assertEquals("localhost", nagiosSettings.getNagiosHost());
+        assertEquals(5667, nagiosSettings.getPort());
+        assertEquals("", nagiosSettings.getPassword());
+        assertEquals(5000, nagiosSettings.getConnectTimeout());
+        assertEquals(10000, nagiosSettings.getTimeout());
+        assertEquals("NullEncryptor", nagiosSettings.getEncryptor().getClass().getSimpleName());
+        assertEquals(512, nagiosSettings.getMaxMessageSizeInChars());
     }
 
     @Test
@@ -46,15 +51,14 @@ public class NagiosSettingsBuilderTest {
             .withConnectionTimeout(connectionTimeout)
             .withResponseTimeout(responseTimeout)
             .withEncryption(XOR)
-            .withEncryptor(XOR.getEncryptor())
             .create();
 
         assertEquals(host, nagiosSettings.getNagiosHost());
-        assertEquals((long) port, (long) nagiosSettings.getPort());
+        assertEquals(port, nagiosSettings.getPort());
         assertEquals(password, nagiosSettings.getPassword());
         assertEquals((long) connectionTimeout, (long) nagiosSettings.getConnectTimeout());
         assertEquals((long) responseTimeout, (long) nagiosSettings.getTimeout());
-        assertEquals(XOR.getEncryptor(), nagiosSettings.getEncryptor());
+        assertEquals("XorEncryptor", nagiosSettings.getEncryptor().getClass().getSimpleName());
         assertEquals(4096L, (long) nagiosSettings.getMaxMessageSizeInChars());
     }
 

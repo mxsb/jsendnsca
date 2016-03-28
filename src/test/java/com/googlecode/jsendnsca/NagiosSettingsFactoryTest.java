@@ -21,7 +21,6 @@ import org.junit.rules.ExpectedException;
 import java.io.File;
 import java.util.Properties;
 
-import static com.googlecode.jsendnsca.encryption.Encryption.XOR;
 import static org.junit.Assert.assertEquals;
 
 public class NagiosSettingsFactoryTest {
@@ -31,17 +30,22 @@ public class NagiosSettingsFactoryTest {
 
     @Test
     public void shouldCreateDefaultNagiosSettingForEmptyProperties() throws Exception {
-        Properties emptyProperties = new Properties();
+        final Properties emptyProperties = new Properties();
 
-        NagiosSettings settings = NagiosSettingsFactory.createSettings(emptyProperties);
+        final NagiosSettings settings = NagiosSettingsFactory.createSettings(emptyProperties);
 
-        NagiosSettings defaultSettings = new NagiosSettings();
-        assertEquals(defaultSettings, settings);
+        assertEquals("localhost", settings.getNagiosHost());
+        assertEquals(5667, settings.getPort());
+        assertEquals("", settings.getPassword());
+        assertEquals(5000, settings.getConnectTimeout());
+        assertEquals(10000, settings.getTimeout());
+        assertEquals("NullEncryptor", settings.getEncryptor().getClass().getSimpleName());
+        assertEquals(512, settings.getMaxMessageSizeInChars());
     }
 
     @Test
     public void shouldOverideDefaultSettingsWithValidProperties() throws Exception {
-        Properties overrideAllSettings = new Properties();
+        final Properties overrideAllSettings = new Properties();
         overrideAllSettings.setProperty("nagios.nsca.host", "foobar");
         overrideAllSettings.setProperty("nagios.nsca.port", "7665");
         overrideAllSettings.setProperty("nagios.nsca.password", "secret");
@@ -49,45 +53,44 @@ public class NagiosSettingsFactoryTest {
         overrideAllSettings.setProperty("nagios.nsca.connect.timeout", "10000");
         overrideAllSettings.setProperty("nagios.nsca.encryption", "xor");
 
-        NagiosSettings settings = NagiosSettingsFactory.createSettings(overrideAllSettings);
+        final NagiosSettings settings = NagiosSettingsFactory.createSettings(overrideAllSettings);
 
-        NagiosSettings expectedSettings = new NagiosSettings();
-        expectedSettings.setNagiosHost("foobar");
-        expectedSettings.setPort(7665);
-        expectedSettings.setPassword("secret");
-        expectedSettings.setTimeout(20000);
-        expectedSettings.setConnectTimeout(10000);
-        expectedSettings.setEncryption(XOR);
-
-        assertEquals(expectedSettings, settings);
+        assertEquals("foobar", settings.getNagiosHost());
+        assertEquals(7665, settings.getPort());
+        assertEquals("secret", settings.getPassword());
+        assertEquals(10000, settings.getConnectTimeout());
+        assertEquals(20000, settings.getTimeout());
+        assertEquals("XorEncryptor", settings.getEncryptor().getClass().getSimpleName());
+        assertEquals(512, settings.getMaxMessageSizeInChars());
     }
 
     @Test
     public void shouldOverideDefaultSettingsWithValidPropertiesFile() throws Exception {
-        NagiosSettings settings = NagiosSettingsFactory.createSettings(new File("src/test/resources/nsca.properties"));
+        final NagiosSettings settings = NagiosSettingsFactory.createSettings(new File("src/test/resources/nsca.properties"));
 
-        NagiosSettings expectedSettings = new NagiosSettings();
-        expectedSettings.setNagiosHost("foobar");
-        expectedSettings.setPort(7665);
-        expectedSettings.setPassword("password");
-        expectedSettings.setTimeout(20000);
-        expectedSettings.setConnectTimeout(10000);
-        expectedSettings.setEncryption(XOR);
-
-        assertEquals(expectedSettings, settings);
+        assertEquals("foobar", settings.getNagiosHost());
+        assertEquals(7665, settings.getPort());
+        assertEquals("password", settings.getPassword());
+        assertEquals(10000, settings.getConnectTimeout());
+        assertEquals(20000, settings.getTimeout());
+        assertEquals("XorEncryptor", settings.getEncryptor().getClass().getSimpleName());
+        assertEquals(512, settings.getMaxMessageSizeInChars());
     }
 
     @Test
     public void shouldOverideHostOnly() throws Exception {
-        Properties overrideHostNameOnly = new Properties();
+        final Properties overrideHostNameOnly = new Properties();
         overrideHostNameOnly.setProperty("nagios.nsca.host", "foobar");
 
-        NagiosSettings settings = NagiosSettingsFactory.createSettings(overrideHostNameOnly);
+        final NagiosSettings settings = NagiosSettingsFactory.createSettings(overrideHostNameOnly);
 
-        NagiosSettings expectedSettings = new NagiosSettings();
-        expectedSettings.setNagiosHost("foobar");
-
-        assertEquals(expectedSettings, settings);
+        assertEquals("foobar", settings.getNagiosHost());
+        assertEquals(5667, settings.getPort());
+        assertEquals("", settings.getPassword());
+        assertEquals(5000, settings.getConnectTimeout());
+        assertEquals(10000, settings.getTimeout());
+        assertEquals("NullEncryptor", settings.getEncryptor().getClass().getSimpleName());
+        assertEquals(512, settings.getMaxMessageSizeInChars());
     }
 
     @Test
@@ -126,7 +129,7 @@ public class NagiosSettingsFactoryTest {
     @Test
     public void shouldThrowNagiosConfigurationExceptionForUnknownEncryption() throws Exception {
         expectedException.expect(NagiosConfigurationException.class);
-        expectedException.expectMessage("Key [nagios.nsca.encryption] must be one of [none,triple_des,xor,rijndael128,rijndael192,rijndael256,blowfish], was [foobar]");
+        expectedException.expectMessage("Key [nagios.nsca.encryption] must be one of [none,xor,des,triple_des,cast128,xtea,blowfish,twofish,rijndael128,rijndael192,rijndael256,serpent], was [foobar]");
 
         Properties unknownEncryption = new Properties();
         unknownEncryption.setProperty("nagios.nsca.encryption", "foobar");

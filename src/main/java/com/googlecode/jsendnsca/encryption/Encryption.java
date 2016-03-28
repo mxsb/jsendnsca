@@ -27,57 +27,54 @@ public enum Encryption {
     /**
      * no encryption
      */
-    NONE(),
+    NONE,
+    /**
+     * XOR obfuscation
+     */
+    XOR,
+    /**
+     * DES encryption
+     */
+    DES,
     /**
      * Triple DES encryption
      */
-    TRIPLE_DES(new TripleDESEncryptor()),
+    TRIPLE_DES,
     /**
-     * XOR encryption(?)
+     * CAST 128 encryption
      */
-    XOR(new XorEncryptor()),
+    CAST128,
     /**
-     * Rijndael 128 encryption
+     * xTEA encryption
      */
-    RIJNDAEL128(new AESEncryptor(16)),
-    /**
-     * Rijndael 192 encryption
-     */
-    RIJNDAEL192(new AESEncryptor(24)),
-    /**
-     * Rijndael 256 encryption
-     */
-    RIJNDAEL256(new AESEncryptor(32)),
+    XTEA,
     /**
      * Blowfish encryption
      */
-    BLOWFISH(new BlowfishEncryptor());
-
+    BLOWFISH,
     /**
-     * @return the {@link Encryptor} for this {@link Encryption} constant
+     * Twofish encryption
      */
-    public Encryptor getEncryptor() {
-        return encryptor;
-    }
-    
+    TWOFISH,
+    /**
+     * Rijndael 128 encryption
+     */
+    RIJNDAEL128,
+    /**
+     * Rijndael 192 encryption
+     */
+    RIJNDAEL192,
+    /**
+     * Rijndael 256 encryption
+     */
+    RIJNDAEL256,
+    /**
+     * Serpent encryption
+     */
+    SERPENT;
+
     public static String supportedList() {
         return StringUtils.join(Encryption.values(), ',');
     }
 
-    private final Encryptor encryptor;
-
-    Encryption() {
-        this.encryptor = none();
-    }
-
-    Encryption(Encryptor encryptor) {
-        this.encryptor = encryptor;
-    }
-
-    private Encryptor none() {
-        return new Encryptor() {
-            public void encrypt(byte[] passiveCheckBytes, byte[] initVector, String password) {
-            }
-        };
-    }
 }

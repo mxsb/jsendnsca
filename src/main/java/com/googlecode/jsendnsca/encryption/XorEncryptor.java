@@ -13,16 +13,19 @@
  */
 package com.googlecode.jsendnsca.encryption;
 
-import static org.apache.commons.lang.StringUtils.*;
+import java.io.UnsupportedEncodingException;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * XOR "Encryption"
  * 
  * @author Raj Patel
  */
-public class XorEncryptor implements Encryptor {
+class XorEncryptor implements Encryptor {
 
     private static final int INITIALISATION_VECTOR_SIZE = 128;
+    private static final String ASCII_CHARSET = "US-ASCII";
 
     /*
      * (non-Javadoc)
@@ -39,13 +42,17 @@ public class XorEncryptor implements Encryptor {
         }
 
         if (isNotBlank(password)) {
-            final byte[] passwordBytes = password.getBytes();
+            try {
+                final byte[] passwordBytes = password.getBytes(ASCII_CHARSET);
 
-            for (int y = 0, x = 0; y < passiveCheckBytes.length; y++, x++) {
-                if (x >= passwordBytes.length) {
-                    x = 0;
+                for (int y = 0, x = 0; y < passiveCheckBytes.length; y++, x++) {
+                    if (x >= passwordBytes.length) {
+                        x = 0;
+                    }
+                    passiveCheckBytes[y] ^= passwordBytes[x];
                 }
-                passiveCheckBytes[y] ^= passwordBytes[x];
+            } catch(final UnsupportedEncodingException exception) {
+                throw new RuntimeException(exception);
             }
         }
     }
